@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kitap İhtiyaç Bildirimi</title>
 <script>
-try{var t=localStorage.getItem("tema");if(!t)t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}
+try{var t=localStorage.getItem("tema");if(!t){var o=JSON.parse(localStorage.getItem("okul")||"null");t=o&&(o.tema==="light"||o.tema==="dark")?o.tema:(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}document.documentElement.dataset.theme=t}catch(e){}
 </script>
 <style>
 :root{--bg:#f6f4ef;--sf:#fff;--sf2:#f0ede6;--ink:#1d2a2a;--mut:#667371;--line:#e0dcd2;--ac:#0f766e;--acx:#fff;--ac2:#d9f0ec;--ok:#dff3e6;--okt:#176339;--er:#fde8e8;--ert:#a1212b;--wr:#fff1d6;--wrt:#8a5300;--sh:0 1px 2px rgba(20,30,30,.06),0 8px 24px rgba(20,30,30,.05)}
@@ -88,6 +88,7 @@ tr.tot td{background:var(--ac2);font-weight:800;position:sticky;bottom:0;border-
 .tag.on{background:var(--ok);color:var(--okt)}
 .cr{text-align:center;color:var(--mut);font-size:13px;padding:0 16px calc(96px + env(safe-area-inset-bottom,0));margin-top:-70px}.cr b{color:var(--ink);letter-spacing:.02em}
 .tg{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:9;font-size:14px;max-width:90vw}
+.sws{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}.sw{width:38px;height:38px;border-radius:50%;border:3px solid transparent;padding:0;box-shadow:0 0 0 1px var(--line)}.sw.on{border-color:var(--ink)}
 #kl{display:none}.kc{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px}.kc .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.kc .h b{font-size:18px}.kc .h small{display:block;color:var(--mut)}.kc ul{list-style:none;margin:10px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}.kc li{background:var(--sf2);border-radius:8px;padding:3px 9px;font-size:13px}.kc .f2{display:flex;justify-content:space-between;align-items:center}.kc p{margin:6px 0;font-size:14px;color:var(--mut)}
 @media(max-width:700px){.tw{display:none}#kl{display:grid;gap:10px}.bar input,.bar select{max-width:none;flex:1 1 100%}.hr .gh{padding:8px 10px;font-size:13px}.tot2{display:block!important}}
 @media(max-width:560px){.tx{display:none}}
@@ -99,7 +100,7 @@ tr.tot td{background:var(--ac2);font-weight:800;position:sticky;bottom:0;border-
 </head>
 <body>
 <header><div class="hi">
-  <div class="brand"><span class="logo" id="lg0">📚</span><span class="bn"><b id="okad"></b><small>Kitap ihtiyaç bildirimi</small></span></div>
+  <div class="brand"><span class="logo" id="lg0">📚</span><span class="bn"><b id="okad"></b><small id="alt">Kitap ihtiyaç bildirimi</small></span></div>
   <div class="hr"><a class="gh" id="nv" href="#yonetici">Yönetici</a><button class="gh" id="th" type="button" aria-label="Temayı değiştir"></button></div>
 </div></header>
 <main id="app"></main>
@@ -122,13 +123,28 @@ const OKUL_ADI = "OKUL ADINIZ";
 const OKUL_LOGO = "logo.png";
 
 /* 2) Sınıf ve ders listesi */
-const SINIFLAR = [];
-["1","2","3","4"].forEach(n => "ABCDE".split("").forEach(s => SINIFLAR.push(n+"/"+s)));
-const DERSLER = [["Türkçe",2],["Matematik",2],["Hayat Bilgisi",2],["Fen Bilimleri",2],["Sosyal Bilgiler",2],["İngilizce",2],
+const VSINIF = [];
+["1","2","3","4"].forEach(n => "ABCDE".split("").forEach(x => VSINIF.push(n+"/"+x)));
+const VDERS = [["Türkçe",2],["Matematik",2],["Hayat Bilgisi",2],["Fen Bilimleri",2],["Sosyal Bilgiler",2],["İngilizce",2],
   ["Din Kültürü ve Ahlak Bilgisi",1],["Müzik",1],["İnsan Hakları, Vatandaşlık",1],["Trafik Güvenliği",1]];
-const KEYS = [];
-DERSLER.forEach(([d,n]) => { for(let i=1;i<=n;i++) KEYS.push({k:d+(n>1?" "+i:""),label:d+(n>1?" "+i+". kitap":"")}); });
-const SETN = KEYS.length; /* 1 set = her dersten 1 kitap */
+const VDERSS = VDERS.map(([d,n]) => d + ":" + n);
+let SINIFLAR = [], DERSLER = [], KEYS = [], SETN = 0;
+function kur(o){
+  SINIFLAR = (o.siniflar && o.siniflar.length) ? o.siniflar : VSINIF;
+  DERSLER = (o.dersler && o.dersler.length) ? o.dersler.map(l => { const i = l.lastIndexOf(":"); return i < 0 ? [l.trim(), 1] : [l.slice(0,i).trim(), Math.max(1, parseInt(l.slice(i+1),10) || 1)]; }) : VDERS;
+  KEYS = []; DERSLER.forEach(([d,n]) => { for(let i=1;i<=n;i++) KEYS.push({k:d+(n>1?" "+i:""),label:d+(n>1?" "+i+". kitap":"")}); });
+  SETN = KEYS.length;
+}
+/* Ana ekran metinleri (yönetici panelinden değiştirilebilir) */
+const VM = { alt:"Kitap ihtiyaç bildirimi", baslik:"Sınıfınızın kitap ihtiyacı", ust:"İki dakikada doldurun. Aynı sınıf için tekrar gönderirseniz son gönderiminiz geçerli olur.",
+  k1:"Sınıf bilgisi", og:"Adınız soyadınız", sn:"Sınıf / şube", os:"Öğrenci sayısı", osph:"Örn. 24",
+  k2:"Set", k2a:"1 set = her dersten 1 kitap ({n} kitap). Yazdığınız set adedi tüm derslere otomatik eklenir.", sa:"Set adedi", saa:"Genelde öğrenci sayısı kadar", esit:"Öğrenci sayısı kadar yaz",
+  k3:"Ders bazında ek ihtiyaç", k3a:"İsteğe bağlı. Sette olanın dışında ek kitap gerekiyorsa yazın. Altta her dersin toplamı görünür.",
+  dg:"Başka ihtiyaç (isteğe bağlı)", dgph:"Örn. 2 adet öğretmen kitabı", dock:"kitap bildirilecek", btn:"GÖNDER",
+  ok:"Bildiriminiz alındı", oka:"{s} sınıfı için {n} kitap bildirildi. Teşekkürler.", degis:"Değişiklik yap" };
+const VML = { alt:"Üst çubuk alt yazısı", baslik:"Sayfa başlığı", ust:"Başlık altı açıklama", k1:"1. kart başlığı", og:"Ad soyad etiketi", sn:"Sınıf etiketi", os:"Öğrenci sayısı etiketi", osph:"Öğrenci sayısı örnek yazısı",
+  k2:"Set kartı başlığı", k2a:"Set açıklaması ({n} = ders sayısı)", sa:"Set adedi etiketi", saa:"Set adedi alt yazısı", esit:"Hızlı doldurma bağlantısı", k3:"Ek ihtiyaç kartı başlığı", k3a:"Ek ihtiyaç açıklaması",
+  dg:"Başka ihtiyaç etiketi", dgph:"Başka ihtiyaç örnek yazısı", dock:"Alt çubuk yazısı", btn:"Gönder düğmesi", ok:"Teşekkür başlığı", oka:"Teşekkür metni ({s} = sınıf, {n} = kitap)", degis:"Değişiklik düğmesi" };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore(); db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
@@ -142,20 +158,31 @@ const num = v => Math.max(0, parseInt(v,10) || 0);
 const store = { get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}, del(k){try{localStorage.removeItem(k)}catch{}} };
 const sum = r => (r.set||0)*SETN + KEYS.reduce((a,x)=>a+((r.adet||{})[x.k]||0),0);
 const ef = (r,k) => (r.set||0) + ((r.adet||{})[k]||0);
-const docId = s => s.replace("/","-");
+const docId = s => s.replace(/\//g,"-");
 let unsub=null, unsubAuth=null, toastT;
 function toast(t){ let e=$("tg"); if(!e){e=document.createElement("div");e.id="tg";e.className="tg";e.setAttribute("role","status");document.body.appendChild(e)} e.textContent=t;e.classList.remove("hide");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hide"),2600); }
 
 /* Okul adı ve logo: Yönetici panelinden kaydedilir, Firestore'da saklanır, her cihazda görünür */
 let OKUL = { ad: OKUL_ADI, logo: OKUL_LOGO };
 try { const c = JSON.parse(store.get("okul") || "null"); if (c) OKUL = { ...OKUL, ...c }; } catch {}
+kur(OKUL);
+const T = k => (OKUL.metin && OKUL.metin[k]) || VM[k], TE = k => esc(T(k));
+const PALET = { teal:["#0f766e","#4fd6c4","Yeşil-mavi"], blue:["#2456d6","#7aa7ff","Mavi"], purple:["#6d3fd1","#b69cff","Mor"], red:["#c62f3f","#ff8d98","Kırmızı"], orange:["#c2570c","#ffb066","Turuncu"], green:["#2f7d32","#7fd685","Yeşil"], pink:["#c2327f","#ff8fc6","Pembe"] };
+function renkYaz(k){
+  const e = document.documentElement, p = PALET[k || OKUL.renk] || PALET.teal, c = e.dataset.theme === "dark" ? p[1] : p[0];
+  const n = parseInt(c.slice(1), 16), L = (0.299*(n>>16) + 0.587*((n>>8)&255) + 0.114*(n&255)) / 255;
+  e.style.setProperty("--ac", c); e.style.setProperty("--acx", L > 0.6 ? "#0b1a18" : "#ffffff");
+  e.style.setProperty("--ac2", "color-mix(in srgb," + c + " 20%,var(--sf))");
+}
 function okulYaz(){
+  $("alt").textContent = T("alt");
+  if (!store.get("tema")) { const m = OKUL.tema; html.dataset.theme = (m === "light" || m === "dark") ? m : (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light"); temaYaz(); }
+  renkYaz();
   document.title = OKUL.ad + " - Kitap İhtiyacı"; $("okad").textContent = OKUL.ad;
   const l = $("lg0"); l.className = "logo"; l.textContent = "📚";
   if (OKUL.logo) { const im = new Image(); im.alt = OKUL.ad + " logosu"; im.onload = () => { l.textContent = ""; l.className = "logo img"; l.appendChild(im); }; im.src = OKUL.logo; }
 }
-okulYaz();
-db.collection("ayarlar").doc("okul").get().then(d => { if (d.exists) { OKUL = { ...OKUL, ...d.data() }; store.set("okul", JSON.stringify(d.data())); okulYaz(); } }).catch(e => { const x = document.getElementById("ayerr"); if (x) x.textContent = "Okul ayarları okunamadı (" + (e.code || "hata") + "). Firestore kuralında ayarlar için okuma izni herkese açık olmalı."; });
+db.collection("ayarlar").doc("okul").get().then(d => { if (d.exists) { const eski = JSON.stringify([OKUL.metin, OKUL.siniflar, OKUL.dersler]); OKUL = { ...OKUL, ...d.data() }; store.set("okul", JSON.stringify(d.data())); okulYaz(); if (JSON.stringify([OKUL.metin, OKUL.siniflar, OKUL.dersler]) !== eski) { kur(OKUL); route(); } } }).catch(e => { const x = document.getElementById("ayerr"); if (x) x.textContent = "Okul ayarları okunamadı (" + (e.code || "hata") + "). Firestore kuralında ayarlar için okuma izni herkese açık olmalı."; });
 const kucult = f => new Promise((ok, no) => { const r = new FileReader(); r.onerror = no;
   r.onload = () => { const im = new Image(); im.onerror = no; im.onload = () => { const k = Math.min(1, 256 / Math.max(im.width, im.height)), c = document.createElement("canvas");
     c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); ok(c.toDataURL("image/png")); }; im.src = r.result; };
@@ -164,8 +191,9 @@ const kucult = f => new Promise((ok, no) => { const r = new FileReader(); r.oner
 /* Tema */
 const html=document.documentElement, thBtn=$("th");
 const temaYaz=()=>{thBtn.innerHTML=html.dataset.theme==="dark"?'☀<span class="tx"> Açık</span>':'🌙<span class="tx"> Koyu</span>'};
-thBtn.onclick=()=>{html.dataset.theme=html.dataset.theme==="dark"?"light":"dark";store.set("tema",html.dataset.theme);temaYaz()};
+thBtn.onclick=()=>{html.dataset.theme=html.dataset.theme==="dark"?"light":"dark";store.set("tema",html.dataset.theme);temaYaz();renkYaz()};
 temaYaz();
+okulYaz();
 
 function route(){
   if(unsub){unsub();unsub=null} if(unsubAuth){unsubAuth();unsubAuth=null}
@@ -183,36 +211,36 @@ function stepper(attr,label){
 function formView(){
   app.className="";
   app.innerHTML = `
-  <h1>Sınıfınızın kitap ihtiyacı</h1>
-  <p class="lead">İki dakikada doldurun. Aynı sınıf için tekrar gönderirseniz son gönderiminiz geçerli olur.</p>
+  <h1>${TE("baslik")}</h1>
+  <p class="lead">${TE("ust")}</p>
   <form id="f" novalidate>
     <section class="card">
-      <h2>Sınıf bilgisi</h2>
-      <label class="f" for="og">Adınız soyadınız</label>
+      <h2>${TE("k1")}</h2>
+      <label class="f" for="og">${TE("og")}</label>
       <input id="og" required maxlength="80" autocomplete="name" value="${esc(store.get("ogr")||"")}">
       <div class="g2">
-        <div><label class="f" for="sn">Sınıf / şube</label>
+        <div><label class="f" for="sn">${TE("sn")}</label>
         <select id="sn" required><option value="">Seçin</option>${SINIFLAR.map(s=>`<option>${s}</option>`).join("")}</select></div>
-        <div><label class="f" for="os">Öğrenci sayısı</label>
-        <input id="os" type="number" min="0" max="60" inputmode="numeric" placeholder="Örn. 24"></div>
+        <div><label class="f" for="os">${TE("os")}</label>
+        <input id="os" type="number" min="0" max="60" inputmode="numeric" placeholder="${TE("osph")}"></div>
       </div>
       <div id="eski" class="note hide"></div>
     </section>
     <section class="card">
-      <h2>Set</h2>
-      <p class="sub">1 set = her dersten 1 kitap (${SETN} kitap). Yazdığınız set adedi tüm derslere otomatik eklenir.</p>
-      <div class="row"><span>Set adedi<small>Genelde öğrenci sayısı kadar</small></span>${stepper('id="st"',"Set adedi")}</div>
-      <button type="button" class="lk" id="esit">Öğrenci sayısı kadar yaz</button>
+      <h2>${TE("k2")}</h2>
+      <p class="sub">${esc(T("k2a").replace("{n}",SETN))}</p>
+      <div class="row"><span>${TE("sa")}<small>${TE("saa")}</small></span>${stepper('id="st"',T("sa"))}</div>
+      <button type="button" class="lk" id="esit">${TE("esit")}</button>
     </section>
     <section class="card">
-      <h2>Ders bazında ek ihtiyaç</h2>
-      <p class="sub">İsteğe bağlı. Sette olanın dışında ek kitap gerekiyorsa yazın. Altta her dersin toplamı görünür.</p>
+      <h2>${TE("k3")}</h2>
+      <p class="sub">${TE("k3a")}</p>
       ${KEYS.map(x=>`<div class="row"><span>${esc(x.label)}<small data-t="${esc(x.k)}">Toplam: 0</small></span>${stepper(`data-k="${esc(x.k)}"`,x.label+" ek adet")}</div>`).join("")}
-      <label class="f" for="dg">Başka ihtiyaç (isteğe bağlı)</label>
-      <textarea id="dg" rows="3" maxlength="500" placeholder="Örn. 2 adet öğretmen kitabı"></textarea>
+      <label class="f" for="dg">${TE("dg")}</label>
+      <textarea id="dg" rows="3" maxlength="500" placeholder="${TE("dgph")}"></textarea>
       <div id="m" role="status"></div>
     </section>
-    <div class="dock"><div><p style="margin:0"><b id="top">0</b><span>kitap bildirilecek</span></p><button type="submit" class="pri" id="gb">Bildirimi gönder</button></div></div>
+    <div class="dock"><div><p style="margin:0"><b id="top">0</b><span>${TE("dock")}</span></p><button type="submit" class="pri" id="gb">${TE("btn")}</button></div></div>
   </form>`;
   const f=$("f");
   const ozet=()=>{ const st=num($("st").value); let t=st*SETN; f.querySelectorAll("[data-k]").forEach(i=>{ const n=num(i.value); t+=n; f.querySelector('[data-t="'+i.dataset.k+'"]').textContent="Toplam: "+(st+n); }); $("top").textContent=t; };
@@ -242,9 +270,9 @@ function formView(){
     b.disabled=true; m.className=""; m.textContent="";
     try{
       await COL.doc(docId(veri.sinif)).set(veri); store.set("ogr",veri.ogretmen);
-      app.innerHTML=`<section class="card ok-card"><div class="big">✓</div><h1>Bildiriminiz alındı</h1>
-        <p class="lead"><b>${esc(veri.sinif)}</b> sınıfı için <b>${sum(veri)}</b> kitap bildirildi. Teşekkürler.</p>
-        <button class="gh" id="yn" type="button">Değişiklik yap</button></section>`;
+      app.innerHTML=`<section class="card ok-card"><div class="big">✓</div><h1>${TE("ok")}</h1>
+        <p class="lead">${esc(T("oka")).replace("{s}","<b>"+esc(veri.sinif)+"</b>").replace("{n}","<b>"+sum(veri)+"</b>")}</p>
+        <button class="gh" id="yn" type="button">${TE("degis")}</button></section>`;
       $("yn").onclick=formView;
     }catch(err){ m.className="msg err"; m.textContent="Gönderilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin. ("+err.code+")"; b.disabled=false; }
   };
@@ -292,28 +320,54 @@ function liste(){
   $("ad").innerHTML=`<div id="ch" class="chips"></div>
   <div class="grid"><section class="card" style="margin:0"><h2>Sınıf durumu</h2><p class="sub" id="pg"></p><div class="prog"><i id="pb"></i></div><div class="cl" id="cl"></div></section>
   <section class="card bars" style="margin:0"><h2>Ders bazında toplam kitap</h2><p class="sub">Set ve ders ders bildirimler birlikte hesaplanır.</p><div id="bs"></div></section></div>
-  <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Okul adı ve logo</summary>
+  <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Okul ve görünüm ayarları</summary>
     <label class="f" for="oad">Okul adı</label><input id="oad" maxlength="80" value="${esc(OKUL.ad)}">
     <label class="f" for="olg">Logo (PNG veya JPG)</label><input id="olg" type="file" accept="image/*">
+    <label class="f" for="otm">Varsayılan tema</label>
+    <select id="otm"><option value="auto">Cihaza göre</option><option value="light">Açık</option><option value="dark">Koyu</option></select>
+    <p class="sub" style="margin-top:6px">Kullanıcı kendi temasını seçmediyse bu geçerli olur.</p>
+    <label class="f">Tema rengi</label>
+    <div class="sws" id="sws">${Object.entries(PALET).map(([k,p])=>`<button type="button" class="sw" data-r="${k}" style="background:${p[0]}" aria-label="${p[2]}" title="${p[2]}"></button>`).join("")}</div>
     <p class="sub" style="margin-top:8px">Logo küçültülüp kaydedilir ve tüm cihazlarda görünür.</p>
     <button class="pri" id="oks" type="button">Kaydet</button><div id="om" role="status"></div></details>
   <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Yedekleme</summary>
     <p class="sub" style="margin-top:8px">Tüm bildirimler, okul adı ve logo tek bir dosya olarak indirilir. Yedekten yüklerken aynı sınıflar üzerine yazılır.</p>
     <div class="bar" style="margin:0"><button class="pri" id="yd" type="button">Yedek al</button><button class="gh" id="yy" type="button">Yedekten yükle</button><input id="yf" type="file" accept=".json,application/json" class="hide"></div>
     <div id="ym" role="status"></div></details>
+  <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Ana ekran metinleri ve listeler</summary>
+    <p class="sub" style="margin-top:8px">Öğretmen formundaki her yazıyı buradan değiştirebilirsiniz. Boş bırakılan alan varsayılan metne döner.</p>
+    ${Object.keys(VM).map(k=>`<label class="f" for="mt_${k}">${esc(VML[k])}</label><input id="mt_${k}" maxlength="300" value="${esc(T(k))}">`).join("")}
+    <label class="f" for="msn">Sınıf listesi (virgül veya satırla ayırın)</label><textarea id="msn" rows="4">${esc(SINIFLAR.join(", "))}</textarea>
+    <label class="f" for="mdr">Ders listesi (her satır: Ders adı:kitap sayısı)</label><textarea id="mdr" rows="10">${esc(DERSLER.map(([d,n])=>d+":"+n).join("\n"))}</textarea>
+    <p class="sub" style="margin-top:6px">Dikkat: Ders veya sınıf adını değiştirirseniz eski bildirimlerdeki adetler yeni adla eşleşmez.</p>
+    <div class="bar" style="margin:10px 0 0"><button class="pri" id="mks" type="button">Kaydet</button><button class="gh" id="mvr" type="button">Varsayılana dön</button></div>
+    <div id="mm" role="status"></div></details>
   <div class="bar"><input id="ar" type="search" placeholder="Öğretmen veya sınıf ara" aria-label="Ara">
     <select id="sv" aria-label="Seviye"><option value="">Tüm seviyeler</option>${[1,2,3,4].map(n=>`<option value="${n}">${n}. sınıflar</option>`).join("")}</select>
     <select id="sd" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bekliyor">Onay bekleyen</option><option value="onay">Onaylanan</option></select>
     <span class="sp"></span><button class="gh" id="csv">CSV indir</button><button class="gh" id="yz">Yazdır</button><button class="gh" id="cik">Çıkış</button></div>
   <div class="tw" id="tb"></div><div id="kl"></div><div id="ey"></div>`;
+  let sec=OKUL.renk||"teal"; $("otm").value=OKUL.tema||"auto";
+  const swIs=()=>document.querySelectorAll(".sw").forEach(b=>b.classList.toggle("on",b.dataset.r===sec)); swIs();
+  $("sws").onclick=e=>{const b=e.target.closest("[data-r]");if(!b)return;sec=b.dataset.r;renkYaz(sec);swIs()};
+  const mset=async(v,t)=>{ try{ await db.collection("ayarlar").doc("okul").set(v,{mergeFields:["metin","siniflar","dersler"]});
+      OKUL={...OKUL,...v}; store.set("okul",JSON.stringify(OKUL)); kur(OKUL); okulYaz(); toast(t); route();
+    }catch(e){ const m=$("mm"); m.className="msg err"; m.textContent="Kaydedilemedi ("+(e.code||"hata")+")."; } };
+  $("mks").onclick=()=>{
+    const metin={}; Object.keys(VM).forEach(k=>{const v=$("mt_"+k).value.trim(); if(v&&v!==VM[k]) metin[k]=v;});
+    const siniflar=[...new Set($("msn").value.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))], dersler=$("mdr").value.split("\n").map(x=>x.trim()).filter(Boolean);
+    if(!siniflar.length||!dersler.length){ const m=$("mm"); m.className="msg err"; m.textContent="Sınıf ve ders listesi boş olamaz."; return; }
+    mset({metin,siniflar:siniflar.join(",")===VSINIF.join(",")?[]:siniflar,dersler:dersler.join("|")===VDERSS.join("|")?[]:dersler},"Ana ekran ayarları kaydedildi");
+  };
+  $("mvr").onclick=()=>{ if(confirm("Tüm metinler ve listeler varsayılana dönsün mü?")) mset({metin:{},siniflar:[],dersler:[]},"Varsayılana dönüldü"); };
   $("oks").onclick=async()=>{
-    try{ const ad=$("oad").value.trim()||OKUL.ad, fl=$("olg").files[0], logo=fl?await kucult(fl):OKUL.logo;
-      await db.collection("ayarlar").doc("okul").set({ad,logo}); const v=await db.collection("ayarlar").doc("okul").get({source:"server"}); if(!v.exists) throw {code:"yazilamadi"}; OKUL={ad,logo}; store.set("okul",JSON.stringify(OKUL)); okulYaz(); const om=$("om"); om.className="msg"; om.textContent="Sunucuya kaydedildi. Başka cihazda görünmezse kuralda ayarlar için 'allow read: if true' olduğundan emin olun.";
+    try{ const ad=$("oad").value.trim()||OKUL.ad, fl=$("olg").files[0], logo=fl?await kucult(fl):OKUL.logo, tema=$("otm").value, renk=sec;
+      await db.collection("ayarlar").doc("okul").set({ad,logo,tema,renk}); const v=await db.collection("ayarlar").doc("okul").get({source:"server"}); if(!v.exists) throw {code:"yazilamadi"}; OKUL={ad,logo,tema,renk}; store.set("okul",JSON.stringify(OKUL)); okulYaz(); const om=$("om"); om.className="msg"; om.textContent="Sunucuya kaydedildi. Başka cihazda görünmezse kuralda ayarlar için 'allow read: if true' olduğundan emin olun.";
     }catch(e){ const om=$("om"); om.className="msg err";
       om.textContent=e.code==="permission-denied"?"Kaydedilemedi: Firestore kuralları 'ayarlar' koleksiyonuna yazmaya izin vermiyor. Firebase konsolu > Firestore > Kurallar bölümüne 'ayarlar' kuralını ekleyip Yayınla'ya basın.":"Kaydedilemedi ("+(e.code||e.message||"hata")+"). Logo çok büyükse daha küçük bir dosya deneyin."; } };
   const ym=(t,e)=>{const m=$("ym");m.className="msg"+(e?" err":"");m.textContent=t};
   $("yd").onclick=()=>{
-    const d={surum:1,tarih:new Date().toISOString(),okul:{ad:OKUL.ad,logo:OKUL.logo},talepler:rows.map(r=>({...r,zaman:r.zaman&&r.zaman.toDate?r.zaman.toDate().toISOString():null}))};
+    const d={surum:1,tarih:new Date().toISOString(),okul:{ad:OKUL.ad,logo:OKUL.logo,tema:OKUL.tema||"auto",renk:OKUL.renk||"teal",metin:OKUL.metin||{},siniflar:OKUL.siniflar||[],dersler:OKUL.dersler||[]},talepler:rows.map(r=>({...r,zaman:r.zaman&&r.zaman.toDate?r.zaman.toDate().toISOString():null}))};
     const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:"application/json"}));
     a.download="kitap_yedek_"+new Date().toISOString().slice(0,10)+".json"; a.click(); ym(d.talepler.length+" bildirim ve okul bilgileri yedeklendi.");
   };
