@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kitap İhtiyaç Bildirimi</title>
+<script>
+try{var t=localStorage.getItem("tema");if(!t)t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}
+</script>
+<style>
+:root{--bg:#f6f4ef;--sf:#fff;--sf2:#f0ede6;--ink:#1d2a2a;--mut:#667371;--line:#e0dcd2;--ac:#0f766e;--acx:#fff;--ac2:#d9f0ec;--ok:#dff3e6;--okt:#176339;--er:#fde8e8;--ert:#a1212b;--wr:#fff1d6;--wrt:#8a5300;--sh:0 1px 2px rgba(20,30,30,.06),0 8px 24px rgba(20,30,30,.05)}
+[data-theme=dark]{--bg:#23322f;--sf:#2e3f3c;--sf2:#384c49;--ink:#f1f7f5;--mut:#b3c6c2;--line:#4b6561;--ac:#4fd6c4;--acx:#08231f;--ac2:#2a5a54;--ok:#17382a;--okt:#8fe0b2;--er:#42222a;--ert:#ff9aa6;--wr:#3d3010;--wrt:#f2c46b;--sh:none}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI Variable","Segoe UI",system-ui,sans-serif;padding-bottom:env(safe-area-inset-bottom,0)}
+header{position:sticky;top:env(safe-area-inset-top,0);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hi{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:1280px;margin:0 auto;padding:12px 16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.brand{min-width:0}.logo{flex:none;width:42px;height:42px;border-radius:10px;background:var(--ac);color:var(--acx);display:grid;place-items:center;font-size:20px;overflow:hidden}.logo.img{background:transparent}.logo img{width:100%;height:100%;object-fit:contain}.bn{display:flex;flex-direction:column;line-height:1.2;min-width:0}.bn b{font-size:15px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}.bn small{font-size:12px;color:var(--mut);font-weight:500}
+.hr{display:flex;gap:8px}
+main{max-width:640px;margin:0 auto;padding:20px 16px 120px}
+main.wide{max-width:1280px;padding-bottom:60px}
+h1{font-size:28px;line-height:1.15;letter-spacing:-.02em;margin:6px 0 6px}
+h2{font-size:17px;margin:0 0 2px}
+.lead,.sub{color:var(--mut);margin:0 0 18px}
+.sub{font-size:14px;margin:0 0 6px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--sh)}
+label.f{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--sf2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+select option{background:var(--sf);color:var(--ink)}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:10px}
+.pri{background:var(--ac);color:var(--acx);border:0;padding:12px 20px;font-weight:700}
+.pri:disabled{opacity:.6}
+.gh{background:var(--sf);color:var(--ink);border:1px solid var(--line);padding:8px 12px;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.gh.dg{color:var(--ert)}
+.lk{background:none;border:0;color:var(--ac);padding:0;font-size:14px;text-decoration:underline}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--sf2);border:1px solid var(--line);border-radius:12px;padding:4px;margin:6px 0 10px}
+.seg label{position:relative;text-align:center;border-radius:9px;padding:10px 6px;cursor:pointer;font-weight:600;font-size:15px;color:var(--mut)}
+.seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+.seg label:has(input:checked){background:var(--ac);color:var(--acx)}
+.seg label:has(input:focus-visible){outline:3px solid var(--ac);outline-offset:2px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row small{display:block;color:var(--mut);font-size:12px}
+.st{display:flex;align-items:center;gap:4px;flex:none}
+.st button{width:40px;height:40px;border:1px solid var(--line);background:var(--sf2);color:var(--ink);font-size:20px;line-height:1}
+.st input{width:56px;text-align:center;padding:9px 4px;-moz-appearance:textfield}
+.st input::-webkit-outer-spin-button,.st input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.note{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--wr);color:var(--wrt);font-size:14px}
+.msg{margin-top:14px;padding:11px 13px;border-radius:10px;background:var(--ok);color:var(--okt)}
+.msg.err{background:var(--er);color:var(--ert)}
+.hide{display:none!important}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:4;background:var(--sf);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0))}
+.dock div{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dock b{font-size:22px}.dock span{color:var(--mut);font-size:13px;display:block;line-height:1.2}
+.ok-card{text-align:center;padding:36px 20px}
+.ok-card .big{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--ok);color:var(--okt);display:grid;place-items:center;font-size:32px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 16px}
+.chip{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--sh)}
+.chip b{display:block;font-size:28px;line-height:1.1}
+.chip span{color:var(--mut);font-size:13px}
+.prog{height:10px;border-radius:99px;background:var(--sf2);overflow:hidden;margin:8px 0 4px}
+.prog i{display:block;height:100%;background:var(--ac);border-radius:99px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1.4fr}}
+.cl{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.cl button{border:1px solid var(--line);background:var(--sf2);color:var(--mut);padding:8px 0;font-size:13px;font-weight:600}
+.cl button.on{background:var(--ac2);color:var(--ac);border-color:var(--ac)}
+.cl button.ap{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.bars .b{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;font-size:13px;margin:7px 0}
+.bars .t{height:12px;background:var(--sf2);border-radius:99px;overflow:hidden}
+.bars .t i{display:block;height:100%;background:var(--ac);border-radius:99px}
+.bars .b span:last-child{text-align:right;font-weight:700}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.bar input,.bar select{width:auto;flex:1 1 180px;max-width:260px}
+.bar .sp{flex:1}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--sf);max-height:70vh}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;background:var(--sf)}
+th{background:var(--sf2);color:var(--mut);font-weight:600;position:sticky;top:0;z-index:2}
+td:first-child,th:first-child{text-align:left;font-weight:700;position:sticky;left:0;z-index:1}
+th:first-child{z-index:3}
+td.l{text-align:left;white-space:normal;min-width:160px;font-weight:400}
+tr.tot td{background:var(--ac2);font-weight:800;position:sticky;bottom:0;border-bottom:0}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;background:var(--wr);color:var(--wrt);border:0}
+.tag.on{background:var(--ok);color:var(--okt)}
+.cr{text-align:center;color:var(--mut);font-size:13px;padding:0 16px calc(96px + env(safe-area-inset-bottom,0));margin-top:-70px}.cr b{color:var(--ink);letter-spacing:.02em}
+.tg{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:9;font-size:14px;max-width:90vw}
+#kl{display:none}.kc{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px}.kc .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.kc .h b{font-size:18px}.kc .h small{display:block;color:var(--mut)}.kc ul{list-style:none;margin:10px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}.kc li{background:var(--sf2);border-radius:8px;padding:3px 9px;font-size:13px}.kc .f2{display:flex;justify-content:space-between;align-items:center}.kc p{margin:6px 0;font-size:14px;color:var(--mut)}
+@media(max-width:700px){.tw{display:none}#kl{display:grid;gap:10px}.bar input,.bar select{max-width:none;flex:1 1 100%}.hr .gh{padding:8px 10px;font-size:13px}.tot2{display:block!important}}
+@media(max-width:560px){.tx{display:none}}
+@media(max-width:420px){.g2{grid-template-columns:1fr}.brand .bn small{display:none}}
+@media(max-width:560px){.bars .b{grid-template-columns:110px 1fr 38px}h1{font-size:24px}}
+@media print{#kl{display:none!important}.tw{display:block!important}header,.bar,.dock,.cl,.gh,.tg{display:none!important}body{background:#fff}.tw{max-height:none;overflow:visible}th,td{background:#fff!important;position:static!important}}
+@media (prefers-reduced-motion:no-preference){button{transition:filter .15s}button:hover{filter:brightness(1.07)}}
+</style>
+</head>
+<body>
+<header><div class="hi">
+  <div class="brand"><span class="logo" id="lg0">📚</span><span class="bn"><b id="okad"></b><small>Kitap ihtiyaç bildirimi</small></span></div>
+  <div class="hr"><a class="gh" id="nv" href="#yonetici">Yönetici</a><button class="gh" id="th" type="button" aria-label="Temayı değiştir"></button></div>
+</div></header>
+<main id="app"></main>
+<footer class="cr">Prepared by <b>ÇÖZGEN</b><div id="ayerr" style="margin-top:6px;color:var(--ert)"></div></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+/* 1) Firebase ayarlarınızı yapıştırın */
+const firebaseConfig = {
+  apiKey: "AIzaSyDXR7p9BIB0WQ9fa-dw2Pqa6tGpdhgxt-g",
+  authDomain: "okul-4f9ff.firebaseapp.com",
+  projectId: "okul-4f9ff",
+  appId: "1:1037904921330:web:aebe45e1dd0710f98a466b",
+ };
+
+/* Okul bilgileri: adı yazın, logo dosyasını bu HTML'nin yanına koyup adını yazın (örn. "logo.png") veya tam adres verin */
+const OKUL_ADI = "OKUL ADINIZ";
+const OKUL_LOGO = "logo.png";
+
+/* 2) Sınıf ve ders listesi */
+const SINIFLAR = [];
+["1","2","3","4"].forEach(n => "ABCDE".split("").forEach(s => SINIFLAR.push(n+"/"+s)));
+const DERSLER = [["Türkçe",2],["Matematik",2],["Hayat Bilgisi",2],["Fen Bilimleri",2],["Sosyal Bilgiler",2],["İngilizce",2],
+  ["Din Kültürü ve Ahlak Bilgisi",1],["Müzik",1],["İnsan Hakları, Vatandaşlık",1],["Trafik Güvenliği",1]];
+const KEYS = [];
+DERSLER.forEach(([d,n]) => { for(let i=1;i<=n;i++) KEYS.push({k:d+(n>1?" "+i:""),label:d+(n>1?" "+i+". kitap":"")}); });
+const SETN = KEYS.length; /* 1 set = her dersten 1 kitap */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore(); db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+let auth; try { auth = firebase.auth(); } catch (e) { auth = { onAuthStateChanged: cb => { cb(null); return () => {}; }, signOut(){}, setPersistence: async()=>{}, signInWithEmailAndPassword: async()=>{ throw 0; }, sendPasswordResetEmail: async()=>{ throw {code:"desteklenmiyor"}; } }; }
+const COL = db.collection("talepler");
+if (!/^https?:$/.test(location.protocol)) document.querySelector("main").insertAdjacentHTML("beforebegin", '<div class="msg err" style="width:calc(100% - 32px);max-width:640px;margin:12px auto"><b>Bu sayfa dosya olarak açılmış.</b> Veriler ve yönetici girişi çalışmaz. Dosyayı bir web adresine yükleyip (Firebase Hosting, Netlify vb.) o adresten açın.</div>');
+const app = document.getElementById("app");
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = v => Math.max(0, parseInt(v,10) || 0);
+const store = { get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}, del(k){try{localStorage.removeItem(k)}catch{}} };
+const sum = r => (r.set||0)*SETN + KEYS.reduce((a,x)=>a+((r.adet||{})[x.k]||0),0);
+const ef = (r,k) => (r.set||0) + ((r.adet||{})[k]||0);
+const docId = s => s.replace("/","-");
+let unsub=null, unsubAuth=null, toastT;
+function toast(t){ let e=$("tg"); if(!e){e=document.createElement("div");e.id="tg";e.className="tg";e.setAttribute("role","status");document.body.appendChild(e)} e.textContent=t;e.classList.remove("hide");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hide"),2600); }
+
+/* Okul adı ve logo: Yönetici panelinden kaydedilir, Firestore'da saklanır, her cihazda görünür */
+let OKUL = { ad: OKUL_ADI, logo: OKUL_LOGO };
+try { const c = JSON.parse(store.get("okul") || "null"); if (c) OKUL = { ...OKUL, ...c }; } catch {}
+function okulYaz(){
+  document.title = OKUL.ad + " - Kitap İhtiyacı"; $("okad").textContent = OKUL.ad;
+  const l = $("lg0"); l.className = "logo"; l.textContent = "📚";
+  if (OKUL.logo) { const im = new Image(); im.alt = OKUL.ad + " logosu"; im.onload = () => { l.textContent = ""; l.className = "logo img"; l.appendChild(im); }; im.src = OKUL.logo; }
+}
+okulYaz();
+db.collection("ayarlar").doc("okul").get().then(d => { if (d.exists) { OKUL = { ...OKUL, ...d.data() }; store.set("okul", JSON.stringify(d.data())); okulYaz(); } }).catch(e => { const x = document.getElementById("ayerr"); if (x) x.textContent = "Okul ayarları okunamadı (" + (e.code || "hata") + "). Firestore kuralında ayarlar için okuma izni herkese açık olmalı."; });
+const kucult = f => new Promise((ok, no) => { const r = new FileReader(); r.onerror = no;
+  r.onload = () => { const im = new Image(); im.onerror = no; im.onload = () => { const k = Math.min(1, 256 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); ok(c.toDataURL("image/png")); }; im.src = r.result; };
+  r.readAsDataURL(f); });
+
+/* Tema */
+const html=document.documentElement, thBtn=$("th");
+const temaYaz=()=>{thBtn.innerHTML=html.dataset.theme==="dark"?'☀<span class="tx"> Açık</span>':'🌙<span class="tx"> Koyu</span>'};
+thBtn.onclick=()=>{html.dataset.theme=html.dataset.theme==="dark"?"light":"dark";store.set("tema",html.dataset.theme);temaYaz()};
+temaYaz();
+
+function route(){
+  if(unsub){unsub();unsub=null} if(unsubAuth){unsubAuth();unsubAuth=null}
+  const adm = location.hash==="#yonetici";
+  $("nv").textContent = adm ? "← Forma dön" : "Yönetici";
+  $("nv").href = adm ? "#" : "#yonetici";
+  adm ? adminView() : formView();
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- Öğretmen formu ---------- */
+function stepper(attr,label){
+  return `<div class="st"><button type="button" data-d="-1" aria-label="${esc(label)} azalt">−</button><input type="number" min="0" inputmode="numeric" value="0" ${attr} aria-label="${esc(label)}"><button type="button" data-d="1" aria-label="${esc(label)} artır">+</button></div>`;
+}
+function formView(){
+  app.className="";
+  app.innerHTML = `
+  <h1>Sınıfınızın kitap ihtiyacı</h1>
+  <p class="lead">İki dakikada doldurun. Aynı sınıf için tekrar gönderirseniz son gönderiminiz geçerli olur.</p>
+  <form id="f" novalidate>
+    <section class="card">
+      <h2>Sınıf bilgisi</h2>
+      <label class="f" for="og">Adınız soyadınız</label>
+      <input id="og" required maxlength="80" autocomplete="name" value="${esc(store.get("ogr")||"")}">
+      <div class="g2">
+        <div><label class="f" for="sn">Sınıf / şube</label>
+        <select id="sn" required><option value="">Seçin</option>${SINIFLAR.map(s=>`<option>${s}</option>`).join("")}</select></div>
+        <div><label class="f" for="os">Öğrenci sayısı</label>
+        <input id="os" type="number" min="0" max="60" inputmode="numeric" placeholder="Örn. 24"></div>
+      </div>
+      <div id="eski" class="note hide"></div>
+    </section>
+    <section class="card">
+      <h2>Set</h2>
+      <p class="sub">1 set = her dersten 1 kitap (${SETN} kitap). Yazdığınız set adedi tüm derslere otomatik eklenir.</p>
+      <div class="row"><span>Set adedi<small>Genelde öğrenci sayısı kadar</small></span>${stepper('id="st"',"Set adedi")}</div>
+      <button type="button" class="lk" id="esit">Öğrenci sayısı kadar yaz</button>
+    </section>
+    <section class="card">
+      <h2>Ders bazında ek ihtiyaç</h2>
+      <p class="sub">İsteğe bağlı. Sette olanın dışında ek kitap gerekiyorsa yazın. Altta her dersin toplamı görünür.</p>
+      ${KEYS.map(x=>`<div class="row"><span>${esc(x.label)}<small data-t="${esc(x.k)}">Toplam: 0</small></span>${stepper(`data-k="${esc(x.k)}"`,x.label+" ek adet")}</div>`).join("")}
+      <label class="f" for="dg">Başka ihtiyaç (isteğe bağlı)</label>
+      <textarea id="dg" rows="3" maxlength="500" placeholder="Örn. 2 adet öğretmen kitabı"></textarea>
+      <div id="m" role="status"></div>
+    </section>
+    <div class="dock"><div><p style="margin:0"><b id="top">0</b><span>kitap bildirilecek</span></p><button type="submit" class="pri" id="gb">Bildirimi gönder</button></div></div>
+  </form>`;
+  const f=$("f");
+  const ozet=()=>{ const st=num($("st").value); let t=st*SETN; f.querySelectorAll("[data-k]").forEach(i=>{ const n=num(i.value); t+=n; f.querySelector('[data-t="'+i.dataset.k+'"]').textContent="Toplam: "+(st+n); }); $("top").textContent=t; };
+  f.addEventListener("click",e=>{ const b=e.target.closest("[data-d]"); if(!b)return;
+    const i=b.parentNode.querySelector("input"); i.value=Math.max(0,num(i.value)+Number(b.dataset.d)); ozet(); });
+  f.addEventListener("input",ozet);
+  $("esit").onclick=()=>{ $("st").value=num($("os").value); ozet(); };
+  ozet();
+  /* Sınıf seçilince önceki bildirimi getir */
+  $("sn").onchange=async()=>{
+    const bx=$("eski"); bx.classList.add("hide"); if(!f.sn.value)return;
+    try{
+      const d=await COL.doc(docId(f.sn.value)).get(); if(!d.exists)return;
+      const r=d.data(); if(r.ogretmen)f.og.value=r.ogretmen; f.os.value=r.ogrenci||"";
+      $("st").value=r.set||0;
+      f.querySelectorAll("[data-k]").forEach(i=>i.value=(r.adet||{})[i.dataset.k]||0); f.dg.value=r.diger||"";
+      const z=r.zaman&&r.zaman.toDate?r.zaman.toDate().toLocaleString("tr-TR"):"";
+      bx.textContent=`Bu sınıf için ${z} tarihinde bildirim gönderilmiş. Aşağıda görüyorsunuz; değiştirip tekrar gönderebilirsiniz.`; bx.classList.remove("hide"); ozet();
+    }catch{}
+  };
+  f.onsubmit=async e=>{
+    e.preventDefault(); const m=$("m"), b=$("gb");
+    if(!f.og.value.trim()||!f.sn.value){ m.className="msg err"; m.textContent="Adınızı yazın ve sınıfınızı seçin."; return; }
+    const adet={}; f.querySelectorAll("[data-k]").forEach(i=>adet[i.dataset.k]=num(i.value));
+    const veri={ogretmen:f.og.value.trim(),sinif:f.sn.value,ogrenci:num(f.os.value),set:num($("st").value),adet,diger:f.dg.value.trim(),durum:"bekliyor",zaman:firebase.firestore.FieldValue.serverTimestamp()};
+    if(sum(veri)===0&&!veri.diger){ m.className="msg err"; m.textContent="Hiç adet girmediniz. En az bir kitap adedi veya not yazın."; return; }
+    b.disabled=true; m.className=""; m.textContent="";
+    try{
+      await COL.doc(docId(veri.sinif)).set(veri); store.set("ogr",veri.ogretmen);
+      app.innerHTML=`<section class="card ok-card"><div class="big">✓</div><h1>Bildiriminiz alındı</h1>
+        <p class="lead"><b>${esc(veri.sinif)}</b> sınıfı için <b>${sum(veri)}</b> kitap bildirildi. Teşekkürler.</p>
+        <button class="gh" id="yn" type="button">Değişiklik yap</button></section>`;
+      $("yn").onclick=formView;
+    }catch(err){ m.className="msg err"; m.textContent="Gönderilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin. ("+err.code+")"; b.disabled=false; }
+  };
+}
+
+/* ---------- Yönetici ---------- */
+function adminView(){
+  app.className="wide";
+  app.innerHTML=`<h1>Gelen bildirimler</h1><div id="ad"></div>`;
+  unsubAuth=auth.onAuthStateChanged(u=>{ if(location.hash==="#yonetici") u?liste():giris(); });
+}
+function giris(){
+  if(unsub){unsub();unsub=null}
+  app.className="";
+  $("ad").innerHTML=`
+  <form id="lg" class="card">
+    <h2>Yönetici girişi</h2>
+    <label class="f" for="em">E-posta</label>
+    <input id="em" type="email" required autocomplete="username" value="${esc(store.get("eposta")||"")}">
+    <label class="f" for="pw">Şifre</label>
+    <input id="pw" type="password" required autocomplete="current-password">
+    <label style="display:flex;gap:8px;align-items:center;font-size:14px;margin:14px 0"><input type="checkbox" id="hat" style="width:auto" ${store.get("hatirla")==="0"?"":"checked"}>Beni hatırla</label>
+    <button type="submit" class="pri">Giriş yap</button>
+    <p style="margin:14px 0 0"><button type="button" class="lk" id="unut">Şifremi unuttum</button></p>
+    <div id="lm" role="status"></div>
+  </form>`;
+  const lm=$("lm"), say=(t,err)=>{lm.className="msg"+(err?" err":"");lm.textContent=t};
+  $("lg").onsubmit=async e=>{
+    e.preventDefault(); const P=firebase.auth.Auth.Persistence, hat=$("hat").checked;
+    try{
+      await auth.setPersistence(hat?P.LOCAL:P.SESSION);
+      await auth.signInWithEmailAndPassword($("em").value.trim(),$("pw").value);
+      if(hat){store.set("eposta",$("em").value.trim());store.set("hatirla","1")}else{store.del("eposta");store.set("hatirla","0")}
+    }catch{say("E-posta veya şifre hatalı.",true)}
+  };
+  $("unut").onclick=async()=>{
+    const e=$("em").value.trim(); if(!e){say("Önce e-posta adresinizi yazın, sonra tekrar tıklayın.",true);return}
+    try{await auth.sendPasswordResetEmail(e);say("Şifre sıfırlama bağlantısı "+e+" adresine gönderildi.")}catch(err){say("Bağlantı gönderilemedi ("+err.code+").",true)}
+  };
+}
+
+function liste(){
+  app.className="wide";
+  let rows=[], q="", lv="", dr="";
+  $("ad").innerHTML=`<div id="ch" class="chips"></div>
+  <div class="grid"><section class="card" style="margin:0"><h2>Sınıf durumu</h2><p class="sub" id="pg"></p><div class="prog"><i id="pb"></i></div><div class="cl" id="cl"></div></section>
+  <section class="card bars" style="margin:0"><h2>Ders bazında toplam kitap</h2><p class="sub">Set ve ders ders bildirimler birlikte hesaplanır.</p><div id="bs"></div></section></div>
+  <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Okul adı ve logo</summary>
+    <label class="f" for="oad">Okul adı</label><input id="oad" maxlength="80" value="${esc(OKUL.ad)}">
+    <label class="f" for="olg">Logo (PNG veya JPG)</label><input id="olg" type="file" accept="image/*">
+    <p class="sub" style="margin-top:8px">Logo küçültülüp kaydedilir ve tüm cihazlarda görünür.</p>
+    <button class="pri" id="oks" type="button">Kaydet</button><div id="om" role="status"></div></details>
+  <details class="card" style="margin:0 0 16px"><summary style="cursor:pointer;font-weight:700">Yedekleme</summary>
+    <p class="sub" style="margin-top:8px">Tüm bildirimler, okul adı ve logo tek bir dosya olarak indirilir. Yedekten yüklerken aynı sınıflar üzerine yazılır.</p>
+    <div class="bar" style="margin:0"><button class="pri" id="yd" type="button">Yedek al</button><button class="gh" id="yy" type="button">Yedekten yükle</button><input id="yf" type="file" accept=".json,application/json" class="hide"></div>
+    <div id="ym" role="status"></div></details>
+  <div class="bar"><input id="ar" type="search" placeholder="Öğretmen veya sınıf ara" aria-label="Ara">
+    <select id="sv" aria-label="Seviye"><option value="">Tüm seviyeler</option>${[1,2,3,4].map(n=>`<option value="${n}">${n}. sınıflar</option>`).join("")}</select>
+    <select id="sd" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bekliyor">Onay bekleyen</option><option value="onay">Onaylanan</option></select>
+    <span class="sp"></span><button class="gh" id="csv">CSV indir</button><button class="gh" id="yz">Yazdır</button><button class="gh" id="cik">Çıkış</button></div>
+  <div class="tw" id="tb"></div><div id="kl"></div><div id="ey"></div>`;
+  $("oks").onclick=async()=>{
+    try{ const ad=$("oad").value.trim()||OKUL.ad, fl=$("olg").files[0], logo=fl?await kucult(fl):OKUL.logo;
+      await db.collection("ayarlar").doc("okul").set({ad,logo}); const v=await db.collection("ayarlar").doc("okul").get({source:"server"}); if(!v.exists) throw {code:"yazilamadi"}; OKUL={ad,logo}; store.set("okul",JSON.stringify(OKUL)); okulYaz(); const om=$("om"); om.className="msg"; om.textContent="Sunucuya kaydedildi. Başka cihazda görünmezse kuralda ayarlar için 'allow read: if true' olduğundan emin olun.";
+    }catch(e){ const om=$("om"); om.className="msg err";
+      om.textContent=e.code==="permission-denied"?"Kaydedilemedi: Firestore kuralları 'ayarlar' koleksiyonuna yazmaya izin vermiyor. Firebase konsolu > Firestore > Kurallar bölümüne 'ayarlar' kuralını ekleyip Yayınla'ya basın.":"Kaydedilemedi ("+(e.code||e.message||"hata")+"). Logo çok büyükse daha küçük bir dosya deneyin."; } };
+  const ym=(t,e)=>{const m=$("ym");m.className="msg"+(e?" err":"");m.textContent=t};
+  $("yd").onclick=()=>{
+    const d={surum:1,tarih:new Date().toISOString(),okul:{ad:OKUL.ad,logo:OKUL.logo},talepler:rows.map(r=>({...r,zaman:r.zaman&&r.zaman.toDate?r.zaman.toDate().toISOString():null}))};
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:"application/json"}));
+    a.download="kitap_yedek_"+new Date().toISOString().slice(0,10)+".json"; a.click(); ym(d.talepler.length+" bildirim ve okul bilgileri yedeklendi.");
+  };
+  $("yy").onclick=()=>$("yf").click();
+  $("yf").onchange=async e=>{
+    const fl=e.target.files[0]; if(!fl)return; e.target.value="";
+    try{
+      const d=JSON.parse(await fl.text()); if(!Array.isArray(d.talepler)) throw new Error("gecersiz");
+      if(!confirm(d.talepler.length+" bildirim yüklenecek. Aynı sınıflar üzerine yazılır. Devam edilsin mi?")) return;
+      const b=db.batch();
+      d.talepler.forEach(t=>{ const id=t.id||docId(t.sinif); const v={...t}; delete v.id;
+        v.zaman=v.zaman?firebase.firestore.Timestamp.fromDate(new Date(v.zaman)):firebase.firestore.FieldValue.serverTimestamp(); b.set(COL.doc(id),v); });
+      if(d.okul&&d.okul.ad) b.set(db.collection("ayarlar").doc("okul"),d.okul);
+      await b.commit(); if(d.okul&&d.okul.ad){OKUL={...OKUL,...d.okul};store.set("okul",JSON.stringify(OKUL));okulYaz()}
+      ym(d.talepler.length+" bildirim yedekten yüklendi.");
+    }catch(err){ ym(err.message==="gecersiz"||err.name==="SyntaxError"?"Geçersiz yedek dosyası.":"Yüklenemedi ("+(err.code||"hata")+").",true); }
+  };
+  $("cik").onclick=()=>auth.signOut(); $("yz").onclick=()=>print();
+  $("ar").oninput=e=>{q=e.target.value.trim().toLocaleLowerCase("tr");cizTablo()};
+  $("sv").onchange=e=>{lv=e.target.value;cizTablo()}; $("sd").onchange=e=>{dr=e.target.value;cizTablo()};
+  const gor=()=>rows.filter(r=>(!lv||r.sinif[0]===lv)&&(!dr||(r.durum||"bekliyor")===dr)&&(!q||(r.ogretmen+" "+r.sinif+" "+(r.diger||"")).toLocaleLowerCase("tr").includes(q)));
+  const toplam=rs=>{ const t={set:0,all:0,ogr:0,k:{}}; KEYS.forEach(x=>t.k[x.k]=0);
+    rs.forEach(r=>{t.set+=r.set||0;t.ogr+=r.ogrenci||0;t.all+=sum(r);KEYS.forEach(x=>t.k[x.k]+=(r.set||0)+((r.adet||{})[x.k]||0))}); return t; };
+  function ozet(){
+    const t=toplam(rows), bek=rows.filter(r=>(r.durum||"bekliyor")==="bekliyor").length, pct=Math.round(rows.length/SINIFLAR.length*100);
+    $("ch").innerHTML=`<div class="chip"><b>${rows.length}/${SINIFLAR.length}</b><span>sınıf bildirdi</span></div><div class="chip"><b>${t.all}</b><span>toplam kitap</span></div><div class="chip"><b>${t.ogr||"–"}</b><span>öğrenci</span></div><div class="chip"><b>${bek}</b><span>onay bekliyor</span></div>`;
+    $("pg").textContent=`%${pct} tamamlandı. Boş kutulara tıklayınca o sınıfa göre filtrelenir.`; $("pb").style.width=pct+"%";
+    $("cl").innerHTML=SINIFLAR.map(s=>{const r=rows.find(x=>x.sinif===s);return `<button type="button" data-s="${s}" class="${r?((r.durum==="onay")?"ap":"on"):""}" title="${r?esc(r.ogretmen):"Henüz bildirmedi"}">${s}</button>`}).join("");
+    const mx=Math.max(1,...KEYS.map(x=>t.k[x.k]));
+    $("bs").innerHTML=KEYS.map(x=>`<div class="b"><span>${esc(x.label)}</span><div class="t"><i style="width:${t.k[x.k]/mx*100}%"></i></div><span>${t.k[x.k]}</span></div>`).join("");
+  }
+  $("cl").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;$("ar").value=b.dataset.s;q=b.dataset.s.toLocaleLowerCase("tr");cizTablo()};
+  function cizTablo(){
+    const rs=gor(), t=toplam(rs);
+    const th=["Sınıf","Öğretmen","Öğr.","Set",...KEYS.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum",""];
+    const tr=rs.map(r=>{const on=r.durum==="onay";return `<tr><td>${esc(r.sinif)}</td><td class="l">${esc(r.ogretmen)}</td><td>${r.ogrenci||""}</td><td>${r.set||""}</td>${KEYS.map(x=>`<td>${ef(r,x.k)||""}</td>`).join("")}<td><b>${sum(r)}</b></td><td class="l">${esc(r.diger)}</td><td><button class="tag ${on?"on":""}" data-o="${r.id}" data-v="${on?"bekliyor":"onay"}" title="Durumu değiştir">${on?"Onaylandı":"Bekliyor"}</button></td><td><button class="gh dg" data-x="${r.id}" aria-label="${esc(r.sinif)} bildirimini sil">Sil</button></td></tr>`}).join("");
+    $("tb").innerHTML=`<table><thead><tr>${th.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${tr||`<tr><td colspan="${th.length}" style="text-align:left;font-weight:400">${rows.length?"Filtreye uyan bildirim yok.":"Henüz bildirim yok. Öğretmenlere formun bağlantısını gönderin."}</td></tr>`}<tr class="tot"><td>TOPLAM</td><td></td><td>${t.ogr}</td><td>${t.set}</td>${KEYS.map(x=>`<td>${t.k[x.k]}</td>`).join("")}<td>${t.all}</td><td></td><td></td><td></td></tr></tbody></table>`;
+    $("kl").innerHTML=rs.map(r=>{const on=r.durum==="onay";return `<div class="kc"><div class="h"><div><b>${esc(r.sinif)}</b><small>${esc(r.ogretmen)}${r.ogrenci?" · "+r.ogrenci+" öğrenci":""}</small></div><button class="tag ${on?"on":""}" data-o="${r.id}" data-v="${on?"bekliyor":"onay"}">${on?"Onaylandı":"Bekliyor"}</button></div><ul>${KEYS.filter(x=>ef(r,x.k)).map(x=>`<li>${esc(x.label.replace(". kitap",""))}: <b>${ef(r,x.k)}</b></li>`).join("")}</ul>${r.diger?`<p>Not: ${esc(r.diger)}</p>`:""}<div class="f2"><span>Toplam <b>${sum(r)}</b> kitap${r.set?" · "+r.set+" set":""}</span><button class="gh dg" data-x="${r.id}">Sil</button></div></div>`}).join("")||`<p class="sub">${rows.length?"Filtreye uyan bildirim yok.":"Henüz bildirim yok."}</p>`;
+    $("csv").onclick=()=>{
+      const c=v=>'"'+String(v??"").replace(/"/g,'""')+'"', h=["Sınıf","Öğretmen","Öğrenci","Set",...KEYS.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum"];
+      const L=[h.map(c).join(";")];
+      rs.forEach(r=>L.push([r.sinif,r.ogretmen,r.ogrenci||0,r.set||0,...KEYS.map(x=>ef(r,x.k)),sum(r),r.diger,r.durum==="onay"?"Onaylandı":"Bekliyor"].map(c).join(";")));
+      L.push(["TOPLAM","",t.ogr,t.set,...KEYS.map(x=>t.k[x.k]),t.all,"",""].map(c).join(";"));
+      const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\ufeff"+L.join("\n")],{type:"text/csv;charset=utf-8"})); a.download="kitap_ihtiyaci.csv"; a.click();
+    };
+  }
+  $("tb").onclick=$("kl").onclick=async e=>{
+    const o=e.target.closest("[data-o]"), x=e.target.closest("[data-x]");
+    try{
+      if(o){await COL.doc(o.dataset.o).update({durum:o.dataset.v});toast(o.dataset.v==="onay"?"Onaylandı":"Beklemeye alındı")}
+      if(x&&confirm("Bu sınıfın bildirimi silinsin mi?")){await COL.doc(x.dataset.x).delete();toast("Bildirim silindi")}
+    }catch(err){toast("İşlem yapılamadı ("+err.code+")")}
+  };
+  unsub=COL.onSnapshot(snap=>{
+    rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.sinif.localeCompare(b.sinif,"tr",{numeric:true}));
+    ozet(); cizTablo();
+  },err=>{$("ey").innerHTML=`<div class="msg err">Veriler okunamadı: ${esc(err.code)}. Firestore kurallarını kontrol edin.</div>`});
+}
+route();
+</script>
+</body>
+</html>
