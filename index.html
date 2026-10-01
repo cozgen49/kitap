@@ -79,7 +79,7 @@ button{font:inherit;cursor:pointer;border-radius:10px}
 .tw{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--sf);max-height:70vh}
 table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
 th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;background:var(--sf)}
-th{background:var(--sf2);color:var(--mut);font-weight:600;position:sticky;top:0;z-index:2}
+th{background:var(--sf2);color:var(--mut);font-weight:600;white-space:normal;min-width:88px;font-size:13px;position:sticky;top:0;z-index:2}
 td:first-child,th:first-child{text-align:left;font-weight:700;position:sticky;left:0;z-index:1}
 th:first-child{z-index:3}
 td.l{text-align:left;white-space:normal;min-width:160px;font-weight:400}
@@ -125,20 +125,25 @@ const OKUL_LOGO = "logo.png";
 /* 2) Sınıf ve ders listesi */
 const VSINIF = [];
 ["1","2","3","4"].forEach(n => "ABCDE".split("").forEach(x => VSINIF.push(n+"/"+x)));
-const VDERS = [["Türkçe",2],["Matematik",2],["Hayat Bilgisi",2],["Fen Bilimleri",2],["Sosyal Bilgiler",2],["İngilizce",2],
-  ["Din Kültürü ve Ahlak Bilgisi",1],["Müzik",1],["İnsan Hakları, Vatandaşlık",1],["Trafik Güvenliği",1]];
-const VDERSS = VDERS.map(([d,n]) => d + ":" + n);
-let SINIFLAR = [], DERSLER = [], KEYS = [], SETN = 0;
+const VKITAP = [
+ [1,"İlkokul Türkçe 1 Ders Kitabı"],[1,"İlkokul Türkçe 1 İlk Okuma Yazma Kitabı"],[1,"İlkokul Matematik 1"],[1,"İlkokul Hayat Bilgisi 1"],[1,"İlkokul Müzik 1"],
+ [2,"İlkokul Türkçe 2 Ders Kitabı"],[2,"İlkokul Matematik 2"],[2,"İlkokul Hayat Bilgisi 2"],[2,"İlkokul Müzik 2"],[2,"İlkokul İngilizce 2"],
+ [3,"İlkokul Türkçe 3 Ders Kitabı"],[3,"İlkokul Matematik 3"],[3,"İlkokul Hayat Bilgisi 3"],[3,"İlkokul Fen Bilimleri 3"],[3,"İlkokul İngilizce 3"],[3,"İlkokul Müzik 3"],
+ [4,"İlkokul Türkçe 4 Ders Kitabı"],[4,"İlkokul Matematik 4"],[4,"İlkokul Fen Bilimleri 4"],[4,"İlkokul Sosyal Bilgiler 4"],[4,"İlkokul İngilizce 4"],[4,"İlkokul Din Kültürü ve Ahlak Bilgisi 4"],[4,"İnsan Hakları, Vatandaşlık ve Demokrasi 4"],[4,"İlkokul Trafik Güvenliği 4"],[4,"İlkokul Müzik 4"]];
+const VDERSS = VKITAP.map(([g,a]) => g + "|" + a);
+let SINIFLAR = [], KEYS = [], KG = {}, KM = {};
+const gr = s => parseInt(s,10) || 0, kg = s => KG[gr(s)] || [];
 function kur(o){
   SINIFLAR = (o.siniflar && o.siniflar.length) ? o.siniflar : VSINIF;
-  DERSLER = (o.dersler && o.dersler.length) ? o.dersler.map(l => { const i = l.lastIndexOf(":"); return i < 0 ? [l.trim(), 1] : [l.slice(0,i).trim(), Math.max(1, parseInt(l.slice(i+1),10) || 1)]; }) : VDERS;
-  KEYS = []; DERSLER.forEach(([d,n]) => { for(let i=1;i<=n;i++) KEYS.push({k:d+(n>1?" "+i:""),label:d+(n>1?" "+i+". kitap":"")}); });
-  SETN = KEYS.length;
+  let L = ((o.dersler && o.dersler.length) ? o.dersler : VDERSS).filter(l => /^\d+\|/.test(l));
+  if (!L.length) L = VDERSS;
+  KEYS = L.map(l => { const i = l.indexOf("|"), g = parseInt(l.slice(0,i),10), a = l.slice(i+1).trim(); return { k: g + ". " + a, label: a, g }; });
+  KG = {}; KM = {}; KEYS.forEach(x => { (KG[x.g] = KG[x.g] || []).push(x); KM[x.k] = x; });
 }
 /* Ana ekran metinleri (yönetici panelinden değiştirilebilir) */
 const VM = { alt:"Kitap ihtiyaç bildirimi", baslik:"Sınıfınızın kitap ihtiyacı", ust:"İki dakikada doldurun. Aynı sınıf için tekrar gönderirseniz son gönderiminiz geçerli olur.",
   k1:"Sınıf bilgisi", og:"Adınız soyadınız", sn:"Sınıf / şube", os:"Öğrenci sayısı", osph:"Örn. 24",
-  k2:"Set", k2a:"1 set = her dersten 1 kitap ({n} kitap). Yazdığınız set adedi tüm derslere otomatik eklenir.", sa:"Set adedi", saa:"Genelde öğrenci sayısı kadar", esit:"Öğrenci sayısı kadar yaz",
+  k2:"Set", k2a:"1 set = sınıfınızın tüm ders kitapları ({n} kitap). Yazdığınız set adedi her kitaba otomatik eklenir.", sa:"Set adedi", saa:"Genelde öğrenci sayısı kadar", esit:"Öğrenci sayısı kadar yaz",
   k3:"Ders bazında ek ihtiyaç", k3a:"İsteğe bağlı. Sette olanın dışında ek kitap gerekiyorsa yazın. Altta her dersin toplamı görünür.",
   dg:"Başka ihtiyaç (isteğe bağlı)", dgph:"Örn. 2 adet öğretmen kitabı", dock:"kitap bildirilecek", btn:"GÖNDER",
   ok:"Bildiriminiz alındı", oka:"{s} sınıfı için {n} kitap bildirildi. Teşekkürler.", degis:"Değişiklik yap" };
@@ -156,8 +161,8 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num = v => Math.max(0, parseInt(v,10) || 0);
 const store = { get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}}, del(k){try{localStorage.removeItem(k)}catch{}} };
-const sum = r => (r.set||0)*SETN + KEYS.reduce((a,x)=>a+((r.adet||{})[x.k]||0),0);
-const ef = (r,k) => (r.set||0) + ((r.adet||{})[k]||0);
+const sum = r => { const l = kg(r.sinif); return (r.set||0)*l.length + l.reduce((a,x)=>a+((r.adet||{})[x.k]||0),0); };
+const ef = (r,k) => { const x = KM[k]; return x && x.g === gr(r.sinif) ? (r.set||0) + ((r.adet||{})[k]||0) : 0; };
 const docId = s => s.replace(/\//g,"-");
 let unsub=null, unsubAuth=null, toastT;
 function toast(t){ let e=$("tg"); if(!e){e=document.createElement("div");e.id="tg";e.className="tg";e.setAttribute("role","status");document.body.appendChild(e)} e.textContent=t;e.classList.remove("hide");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hide"),2600); }
@@ -228,14 +233,14 @@ function formView(){
     </section>
     <section class="card">
       <h2>${TE("k2")}</h2>
-      <p class="sub">${esc(T("k2a").replace("{n}",SETN))}</p>
+      <p class="sub" id="k2a"></p>
       <div class="row"><span>${TE("sa")}<small>${TE("saa")}</small></span>${stepper('id="st"',T("sa"))}</div>
       <button type="button" class="lk" id="esit">${TE("esit")}</button>
     </section>
     <section class="card">
       <h2>${TE("k3")}</h2>
       <p class="sub">${TE("k3a")}</p>
-      ${KEYS.map(x=>`<div class="row"><span>${esc(x.label)}<small data-t="${esc(x.k)}">Toplam: 0</small></span>${stepper(`data-k="${esc(x.k)}"`,x.label+" ek adet")}</div>`).join("")}
+      <div id="kb"></div>
       <label class="f" for="dg">${TE("dg")}</label>
       <textarea id="dg" rows="3" maxlength="500" placeholder="${TE("dgph")}"></textarea>
       <div id="m" role="status"></div>
@@ -243,15 +248,19 @@ function formView(){
     <div class="dock"><div><p style="margin:0"><b id="top">0</b><span>${TE("dock")}</span></p><button type="submit" class="pri" id="gb">${TE("btn")}</button></div></div>
   </form>`;
   const f=$("f");
-  const ozet=()=>{ const st=num($("st").value); let t=st*SETN; f.querySelectorAll("[data-k]").forEach(i=>{ const n=num(i.value); t+=n; f.querySelector('[data-t="'+i.dataset.k+'"]').textContent="Toplam: "+(st+n); }); $("top").textContent=t; };
+  const ozet=()=>{ const st=num($("st").value); let t=st*f.querySelectorAll("[data-k]").length; f.querySelectorAll("[data-k]").forEach(i=>{ const n=num(i.value); t+=n; f.querySelector('[data-t="'+i.dataset.k+'"]').textContent="Toplam: "+(st+n); }); $("top").textContent=t; };
   f.addEventListener("click",e=>{ const b=e.target.closest("[data-d]"); if(!b)return;
     const i=b.parentNode.querySelector("input"); i.value=Math.max(0,num(i.value)+Number(b.dataset.d)); ozet(); });
   f.addEventListener("input",ozet);
   $("esit").onclick=()=>{ $("st").value=num($("os").value); ozet(); };
-  ozet();
+  const kitapCiz=()=>{ const sv=f.sn.value, l=kg(sv);
+    $("k2a").textContent = sv ? T("k2a").replace("{n}",l.length) : "Önce sınıf / şube seçin.";
+    $("kb").innerHTML = sv ? (l.length ? l.map(x=>`<div class="row"><span>${esc(x.label)}<small data-t="${esc(x.k)}">Toplam: 0</small></span>${stepper(`data-k="${esc(x.k)}"`,x.label+" ek adet")}</div>`).join("") : '<p class="sub">Bu sınıf seviyesi için kitap listesi tanımlı değil.</p>') : '<p class="sub">Kitap listesi için önce sınıfınızı seçin.</p>';
+    ozet(); };
+  kitapCiz();
   /* Sınıf seçilince önceki bildirimi getir */
   $("sn").onchange=async()=>{
-    const bx=$("eski"); bx.classList.add("hide"); if(!f.sn.value)return;
+    kitapCiz(); const bx=$("eski"); bx.classList.add("hide"); if(!f.sn.value)return;
     try{
       const d=await COL.doc(docId(f.sn.value)).get(); if(!d.exists)return;
       const r=d.data(); if(r.ogretmen)f.og.value=r.ogretmen; f.os.value=r.ogrenci||"";
@@ -338,8 +347,8 @@ function liste(){
     <p class="sub" style="margin-top:8px">Öğretmen formundaki her yazıyı buradan değiştirebilirsiniz. Boş bırakılan alan varsayılan metne döner.</p>
     ${Object.keys(VM).map(k=>`<label class="f" for="mt_${k}">${esc(VML[k])}</label><input id="mt_${k}" maxlength="300" value="${esc(T(k))}">`).join("")}
     <label class="f" for="msn">Sınıf listesi (virgül veya satırla ayırın)</label><textarea id="msn" rows="4">${esc(SINIFLAR.join(", "))}</textarea>
-    <label class="f" for="mdr">Ders listesi (her satır: Ders adı:kitap sayısı)</label><textarea id="mdr" rows="10">${esc(DERSLER.map(([d,n])=>d+":"+n).join("\n"))}</textarea>
-    <p class="sub" style="margin-top:6px">Dikkat: Ders veya sınıf adını değiştirirseniz eski bildirimlerdeki adetler yeni adla eşleşmez.</p>
+    <label class="f" for="mdr">Kitap listesi (her satır: sınıf seviyesi|kitap adı, örn. 1|İlkokul Matematik 1)</label><textarea id="mdr" rows="14">${esc(KEYS.map(x=>x.g+"|"+x.label).join("\n"))}</textarea>
+    <p class="sub" style="margin-top:6px">Her sınıf seviyesi sadece kendi kitaplarını görür. Dikkat: Kitap veya sınıf adını değiştirirseniz eski bildirimlerdeki adetler yeni adla eşleşmez.</p>
     <div class="bar" style="margin:10px 0 0"><button class="pri" id="mks" type="button">Kaydet</button><button class="gh" id="mvr" type="button">Varsayılana dön</button></div>
     <div id="mm" role="status"></div></details>
   <div class="bar"><input id="ar" type="search" placeholder="Öğretmen veya sınıf ara" aria-label="Ara">
@@ -357,7 +366,7 @@ function liste(){
     const metin={}; Object.keys(VM).forEach(k=>{const v=$("mt_"+k).value.trim(); if(v&&v!==VM[k]) metin[k]=v;});
     const siniflar=[...new Set($("msn").value.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))], dersler=$("mdr").value.split("\n").map(x=>x.trim()).filter(Boolean);
     if(!siniflar.length||!dersler.length){ const m=$("mm"); m.className="msg err"; m.textContent="Sınıf ve ders listesi boş olamaz."; return; }
-    mset({metin,siniflar:siniflar.join(",")===VSINIF.join(",")?[]:siniflar,dersler:dersler.join("|")===VDERSS.join("|")?[]:dersler},"Ana ekran ayarları kaydedildi");
+    mset({metin,siniflar:siniflar.join(",")===VSINIF.join(",")?[]:siniflar,dersler:dersler.join("\n")===VDERSS.join("\n")?[]:dersler},"Ana ekran ayarları kaydedildi");
   };
   $("mvr").onclick=()=>{ if(confirm("Tüm metinler ve listeler varsayılana dönsün mü?")) mset({metin:{},siniflar:[],dersler:[]},"Varsayılana dönüldü"); };
   $("oks").onclick=async()=>{
@@ -390,27 +399,28 @@ function liste(){
   $("sv").onchange=e=>{lv=e.target.value;cizTablo()}; $("sd").onchange=e=>{dr=e.target.value;cizTablo()};
   const gor=()=>rows.filter(r=>(!lv||r.sinif[0]===lv)&&(!dr||(r.durum||"bekliyor")===dr)&&(!q||(r.ogretmen+" "+r.sinif+" "+(r.diger||"")).toLocaleLowerCase("tr").includes(q)));
   const toplam=rs=>{ const t={set:0,all:0,ogr:0,k:{}}; KEYS.forEach(x=>t.k[x.k]=0);
-    rs.forEach(r=>{t.set+=r.set||0;t.ogr+=r.ogrenci||0;t.all+=sum(r);KEYS.forEach(x=>t.k[x.k]+=(r.set||0)+((r.adet||{})[x.k]||0))}); return t; };
+    rs.forEach(r=>{t.set+=r.set||0;t.ogr+=r.ogrenci||0;t.all+=sum(r);KEYS.forEach(x=>t.k[x.k]+=ef(r,x.k))}); return t; };
+  const kol=t=>lv?KEYS.filter(x=>String(x.g)===lv):KEYS.filter(x=>t.k[x.k]>0);
   function ozet(){
     const t=toplam(rows), bek=rows.filter(r=>(r.durum||"bekliyor")==="bekliyor").length, pct=Math.round(rows.length/SINIFLAR.length*100);
     $("ch").innerHTML=`<div class="chip"><b>${rows.length}/${SINIFLAR.length}</b><span>sınıf bildirdi</span></div><div class="chip"><b>${t.all}</b><span>toplam kitap</span></div><div class="chip"><b>${t.ogr||"–"}</b><span>öğrenci</span></div><div class="chip"><b>${bek}</b><span>onay bekliyor</span></div>`;
     $("pg").textContent=`%${pct} tamamlandı. Boş kutulara tıklayınca o sınıfa göre filtrelenir.`; $("pb").style.width=pct+"%";
     $("cl").innerHTML=SINIFLAR.map(s=>{const r=rows.find(x=>x.sinif===s);return `<button type="button" data-s="${s}" class="${r?((r.durum==="onay")?"ap":"on"):""}" title="${r?esc(r.ogretmen):"Henüz bildirmedi"}">${s}</button>`}).join("");
-    const mx=Math.max(1,...KEYS.map(x=>t.k[x.k]));
-    $("bs").innerHTML=KEYS.map(x=>`<div class="b"><span>${esc(x.label)}</span><div class="t"><i style="width:${t.k[x.k]/mx*100}%"></i></div><span>${t.k[x.k]}</span></div>`).join("");
+    const bk=KEYS.filter(x=>t.k[x.k]>0), mx=Math.max(1,...bk.map(x=>t.k[x.k]));
+    $("bs").innerHTML=!bk.length?'<p class="sub">Henüz bildirim yok.</p>':bk.map(x=>`<div class="b"><span>${esc(x.label)}</span><div class="t"><i style="width:${t.k[x.k]/mx*100}%"></i></div><span>${t.k[x.k]}</span></div>`).join("");
   }
   $("cl").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;$("ar").value=b.dataset.s;q=b.dataset.s.toLocaleLowerCase("tr");cizTablo()};
   function cizTablo(){
     const rs=gor(), t=toplam(rs);
-    const th=["Sınıf","Öğretmen","Öğr.","Set",...KEYS.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum",""];
-    const tr=rs.map(r=>{const on=r.durum==="onay";return `<tr><td>${esc(r.sinif)}</td><td class="l">${esc(r.ogretmen)}</td><td>${r.ogrenci||""}</td><td>${r.set||""}</td>${KEYS.map(x=>`<td>${ef(r,x.k)||""}</td>`).join("")}<td><b>${sum(r)}</b></td><td class="l">${esc(r.diger)}</td><td><button class="tag ${on?"on":""}" data-o="${r.id}" data-v="${on?"bekliyor":"onay"}" title="Durumu değiştir">${on?"Onaylandı":"Bekliyor"}</button></td><td><button class="gh dg" data-x="${r.id}" aria-label="${esc(r.sinif)} bildirimini sil">Sil</button></td></tr>`}).join("");
-    $("tb").innerHTML=`<table><thead><tr>${th.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${tr||`<tr><td colspan="${th.length}" style="text-align:left;font-weight:400">${rows.length?"Filtreye uyan bildirim yok.":"Henüz bildirim yok. Öğretmenlere formun bağlantısını gönderin."}</td></tr>`}<tr class="tot"><td>TOPLAM</td><td></td><td>${t.ogr}</td><td>${t.set}</td>${KEYS.map(x=>`<td>${t.k[x.k]}</td>`).join("")}<td>${t.all}</td><td></td><td></td><td></td></tr></tbody></table>`;
+    const cols=kol(t), th=["Sınıf","Öğretmen","Öğr.","Set",...cols.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum",""];
+    const tr=rs.map(r=>{const on=r.durum==="onay";return `<tr><td>${esc(r.sinif)}</td><td class="l">${esc(r.ogretmen)}</td><td>${r.ogrenci||""}</td><td>${r.set||""}</td>${cols.map(x=>`<td>${ef(r,x.k)||""}</td>`).join("")}<td><b>${sum(r)}</b></td><td class="l">${esc(r.diger)}</td><td><button class="tag ${on?"on":""}" data-o="${r.id}" data-v="${on?"bekliyor":"onay"}" title="Durumu değiştir">${on?"Onaylandı":"Bekliyor"}</button></td><td><button class="gh dg" data-x="${r.id}" aria-label="${esc(r.sinif)} bildirimini sil">Sil</button></td></tr>`}).join("");
+    $("tb").innerHTML=`<table><thead><tr>${th.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${tr||`<tr><td colspan="${th.length}" style="text-align:left;font-weight:400">${rows.length?"Filtreye uyan bildirim yok.":"Henüz bildirim yok. Öğretmenlere formun bağlantısını gönderin."}</td></tr>`}<tr class="tot"><td>TOPLAM</td><td></td><td>${t.ogr}</td><td>${t.set}</td>${cols.map(x=>`<td>${t.k[x.k]}</td>`).join("")}<td>${t.all}</td><td></td><td></td><td></td></tr></tbody></table>`;
     $("kl").innerHTML=rs.map(r=>{const on=r.durum==="onay";return `<div class="kc"><div class="h"><div><b>${esc(r.sinif)}</b><small>${esc(r.ogretmen)}${r.ogrenci?" · "+r.ogrenci+" öğrenci":""}</small></div><button class="tag ${on?"on":""}" data-o="${r.id}" data-v="${on?"bekliyor":"onay"}">${on?"Onaylandı":"Bekliyor"}</button></div><ul>${KEYS.filter(x=>ef(r,x.k)).map(x=>`<li>${esc(x.label.replace(". kitap",""))}: <b>${ef(r,x.k)}</b></li>`).join("")}</ul>${r.diger?`<p>Not: ${esc(r.diger)}</p>`:""}<div class="f2"><span>Toplam <b>${sum(r)}</b> kitap${r.set?" · "+r.set+" set":""}</span><button class="gh dg" data-x="${r.id}">Sil</button></div></div>`}).join("")||`<p class="sub">${rows.length?"Filtreye uyan bildirim yok.":"Henüz bildirim yok."}</p>`;
     $("csv").onclick=()=>{
-      const c=v=>'"'+String(v??"").replace(/"/g,'""')+'"', h=["Sınıf","Öğretmen","Öğrenci","Set",...KEYS.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum"];
+      const c=v=>'"'+String(v??"").replace(/"/g,'""')+'"', h=["Sınıf","Öğretmen","Öğrenci","Set",...cols.map(x=>x.label),"Toplam","Başka ihtiyaç","Durum"];
       const L=[h.map(c).join(";")];
-      rs.forEach(r=>L.push([r.sinif,r.ogretmen,r.ogrenci||0,r.set||0,...KEYS.map(x=>ef(r,x.k)),sum(r),r.diger,r.durum==="onay"?"Onaylandı":"Bekliyor"].map(c).join(";")));
-      L.push(["TOPLAM","",t.ogr,t.set,...KEYS.map(x=>t.k[x.k]),t.all,"",""].map(c).join(";"));
+      rs.forEach(r=>L.push([r.sinif,r.ogretmen,r.ogrenci||0,r.set||0,...cols.map(x=>ef(r,x.k)),sum(r),r.diger,r.durum==="onay"?"Onaylandı":"Bekliyor"].map(c).join(";")));
+      L.push(["TOPLAM","",t.ogr,t.set,...cols.map(x=>t.k[x.k]),t.all,"",""].map(c).join(";"));
       const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\ufeff"+L.join("\n")],{type:"text/csv;charset=utf-8"})); a.download="kitap_ihtiyaci.csv"; a.click();
     };
   }
